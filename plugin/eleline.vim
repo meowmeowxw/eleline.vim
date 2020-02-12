@@ -68,6 +68,7 @@ function! ElelineCurFname() abort
 		\ &filetype ==# 'php' ? '  '.expand('%:p:t').'  ' : 
 		\ &filetype ==# 'vim' ? '  '.expand('%:p:t').'   ' : 
 		\ &filetype ==# 'rust' ? '  '.expand('%:p:t').'  ' : 
+		\ &filetype ==# 'gitconfig' ? '  '.expand('%:p:t').'  ' : 
 		\ &filetype ==# 'haskell' ? '  '.expand('%:p:t').'  ' : 
 		\ &filetype ==# 'cs' ? '  '.expand('%:p:t').'  ' : 
 		\ &filetype ==# 'ruby' ? '  '.expand('%:p:t').' ' :
@@ -231,7 +232,8 @@ function! s:StatusLine() abort
   endif
   let l:tot = s:def('ElelineTotalBuf')
   let l:fsize = '%#ElelineFsize#%{ElelineFsize(@%)}%*'
-  let l:m_r_f = '%#Eleline7# %m%r%y %*'
+  "let l:m_r_f = '%#Eleline7# %m%r%y %*'
+  let l:m_r_f = ''
   let l:pos = '%#Eleline8# '.(s:font?"\ue0a1":'').'%l/%L:%c%V |'
   let l:enc = ' %{&fenc != "" ? &fenc : &enc} | %{&bomb ? ",BOM " : ""}'
   let l:ff = '%{&ff} %*'
