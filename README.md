@@ -22,7 +22,7 @@ If you're using newer vim or neovim, i.e., async API is available, eleline will 
 This plugin can be installed with a varity of plugin managers, e.g., [vim-plug](https://github.com/junegunn/vim-plug):
 
 ```vim
-Plug 'liuchengxu/eleline.vim'
+Plug 'meowmeowxw/eleline.vim'
 ```
 
 Don't forget to `set laststatus=2` to always display statusline.
