@@ -1,5 +1,7 @@
 # eleline.vim
 
+![](./eleline.png)
+
 Another **ele**gant status**line** for vim, extracted from [space-vim](https://github.com/liuchengxu/space-vim).
 
 Currenctly supported plugins:
