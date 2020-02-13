@@ -243,6 +243,7 @@ function! s:StatusLine() abort
 endfunction
 
 let s:colors = {
+            \   98  : '#d6b42c', 99  : '#64c64b',
             \   100 : '#ed6c65', 101 : '#d167db', 102 : '#d6bf2c',
             \   140 : '#af87d7', 149 : '#99cc66', 160 : '#d70000',
             \   171 : '#d75fd7', 178 : '#ffbb7d', 184 : '#ffe920',
@@ -313,7 +314,7 @@ function! s:hi_statusline() abort
   call s:hi('ElelineTotalBuf'   , [178 , s:bg+8] , [240 , ''] )
   call s:hi('ElelinePaste'      , [232 , 178]    , [232 , 178]    , 'bold')
   call s:hi('ElelineFsize'      , [250 , s:bg+6] , [235 , ''] )
-  call s:hi('ElelineCurFname'   , [171 , s:bg+4] , [171 , '']     , 'bold' )
+  call s:hi('ElelineCurFname'   , [100 , s:bg+4] ,  [100 , '']     , 'bold' )
   call s:hi('ElelineGitBranch'  , [184 , s:bg+2] , [89  , '']     , 'bold' )
   call s:hi('ElelineGitStatus'  , [208 , s:bg+2] , [89  , ''])
   call s:hi('ElelineError'      , [197 , s:bg+2] , [197 , ''])
@@ -327,9 +328,9 @@ function! s:hi_statusline() abort
   "call s:hi('Eleline7'      , [249 , s:bg+3], [237, ''] )
   "call s:hi('Eleline8'      , [250 , s:bg+4], [238, ''] )
   "call s:hi('Eleline9'      , [251 , s:bg+5], [239, ''] )
-  call s:hi('Eleline7'      , [102 , s:bg+3], [237, ''] )
-  call s:hi('Eleline8'      , [101 , s:bg+2], [238, ''] )
-  call s:hi('Eleline9'      , [100 , s:bg+1], [239, ''] )
+  call s:hi('Eleline7'      , [102 , s:bg+3], [237, ''] ) 
+  call s:hi('Eleline8'      , [101 , s:bg+2], [238, ''] , 'bold')
+  call s:hi('Eleline9'      , [100 , s:bg+1], [239, ''] , 'bold')
 endfunction
 
 function! s:InsertStatuslineColor(mode) abort
