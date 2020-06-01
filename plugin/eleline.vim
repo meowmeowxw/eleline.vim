@@ -14,25 +14,25 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 let s:font = get(g:, 'eleline_powerline_fonts', get(g:, 'airline_powerline_fonts', 0))
-let s:f_icon = s:font ? get(g:, 'eleline_function_icon', " \uf794 ") : ''
+let s:fn_icon = s:font ? get(g:, 'eleline_function_icon', " \uf794 ") : ''
 let s:gui = has('gui_running')
+let s:is_win = has('win32')
+let s:git_branch_cmd = add(s:is_win ? ['cmd', '/c'] : ['bash', '-c'], 'git branch')
+let s:git_branch_symbol = s:font ? " \ue0a0 " : ' Git:'
+let s:git_branch_star_substituted = s:font ? "  \ue0a0" : '  Git:'
 let s:jobs = {}
 
 function! ElelineBufnrWinnr() abort
   let l:bufnr = bufnr('%')
   if !s:gui
-    function! s:circled_num(num) abort
-      return nr2char(9311 + a:num)
-    endfunction
-    "let l:bufnr = l:bufnr > 20 ? l:bufnr : s:circled_num(l:bufnr).' '
-    let l:bufnr = ''
+    " transform to circled num: nr2char(9311 + l:bufnr)
+    let l:bufnr = l:bufnr > 20 ? l:bufnr : nr2char(9311 + l:bufnr).' '
   endif
-  return ' '.l:bufnr."  ".winnr().' '
+return '  '.l:bufnr."  ".winnr().' '
 endfunction
 
 function! ElelineTotalBuf() abort
-  "return '[TOT:'.len(filter(range(1, bufnr('$')), 'buflisted(v:val)')).']'
-  return ""
+  return '[TOT:'.len(filter(range(1, bufnr('$')), 'buflisted(v:val)')).']'
 endfunction
 
 function! ElelinePaste() abort
@@ -57,48 +57,51 @@ function! ElelineFsize(f) abort
 endfunction
 
 function! ElelineCurFname() abort
-	return &filetype ==# 'python' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'c.doxygen' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'c' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'cpp' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'go' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'html' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'javascript' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'markdown' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'php' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'vim' ? '  '.expand('%:p:t').'   ' : 
-		\ &filetype ==# 'rust' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'gitconfig' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'haskell' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'cs' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'ruby' ? '  '.expand('%:p:t').' ' :
-		\ &filetype ==# 'java' ? '  '.expand('%:p:t').'  ' :
-		\ &filetype ==# 'text' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'tex' ? '  '.expand('%:p:t').'  ' : 
-		\ &filetype ==# 'startify' ? '' : '  '.expand('%:p:t').' '
-	 "return &filetype ==# 'startify' ? '' : '  '.expand('%:p:t').' '
+  return &filetype ==# 'python' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'c.doxygen' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'c' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'cpp' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'go' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'html' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'javascript' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'markdown' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'php' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'vim' ? '  '.expand('%:p:t').'   ' : 
+              \ &filetype ==# 'rust' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'gitconfig' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'haskell' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'cs' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'ruby' ? '  '.expand('%:p:t').' ' :
+              \ &filetype ==# 'java' ? '  '.expand('%:p:t').'  ' :
+              \ &filetype ==# 'text' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'tex' ? '  '.expand('%:p:t').'  ' : 
+              \ &filetype ==# 'startify' ? '' : '  '.expand('%:p:t').' '
 endfunction
 
 function! ElelineError() abort
   if exists('g:loaded_ale')
-    let l:counts = ale#statusline#Count(bufnr(''))
-      return l:counts[0] == 0 ? '' : '•'.l:counts[0].' '
+    let s:ale_counts = ale#statusline#Count(bufnr(''))
+    return s:ale_counts[0] == 0 ? '' : '•'.s:ale_counts[0].' '
   endif
   return ''
 endfunction
 
 function! ElelineWarning() abort
   if exists('g:loaded_ale')
-    let l:counts = ale#statusline#Count(bufnr(''))
-    return l:counts[1] == 0 ? '' : '•'.l:counts[1].' '
+    " Ensure ElelineWarning() is called after ElelineError() so that s:ale_counts can be reused.
+    return s:ale_counts[1] == 0 ? '' : '•'.s:ale_counts[1].' '
   endif
   return ''
 endfunction
 
 function! s:is_tmp_file() abort
-  if !empty(&buftype) | return 1 | endif
-  if index(['startify', 'gitcommit'], &filetype) > -1 | return 1 | endif
-  if expand('%:p') =~# '^/tmp' | return 1 | endif
+  if !empty(&buftype)
+        \ || index(['startify', 'gitcommit'], &filetype) > -1
+        \ || expand('%:p') =~# '^/tmp'
+    return 1
+  else
+    return 0
+  endif
 endfunction
 
 " Reference: https://github.com/chemzqm/vimrc/blob/master/statusline.vim
@@ -107,22 +110,21 @@ function! ElelineGitBranch(...) abort
   let reload = get(a:, 1, 0) == 1
   if exists('b:eleline_branch') && !reload | return b:eleline_branch | endif
   if !exists('*FugitiveExtractGitDir') | return '' | endif
-  let roots = values(s:jobs)
-  let dir = get(b:, 'git_dir', FugitiveExtractGitDir(resolve(expand('%:p'))))
+  let dir = exists('b:git_dir') ? b:git_dir : FugitiveExtractGitDir(resolve(expand('%:p')))
   if empty(dir) | return '' | endif
   let b:git_dir = dir
+  let roots = values(s:jobs)
   let root = fnamemodify(dir, ':h')
   if index(roots, root) >= 0 | return '' | endif
 
-  let argv = add(has('win32') ? ['cmd', '/c']: ['bash', '-c'], 'git branch')
   if exists('*job_start')
-    let job = job_start(argv, {'out_io': 'pipe', 'err_io':'null',  'out_cb': function('s:out_cb')})
-    if job_status(job) == 'fail' | return '' | endif
+    let job = job_start(s:git_branch_cmd, {'out_io': 'pipe', 'err_io':'null',  'out_cb': function('s:out_cb')})
+    if job_status(job) ==# 'fail' | return '' | endif
     let s:cwd = root
     let job_id = matchstr(job, '\d\+')
     let s:jobs[job_id] = root
   elseif exists('*jobstart')
-    let job_id = jobstart(argv, {
+    let job_id = jobstart(s:git_branch_cmd, {
       \ 'cwd': root,
       \ 'stdout_buffered': v:true,
       \ 'stderr_buffered': v:true,
@@ -132,19 +134,17 @@ function! ElelineGitBranch(...) abort
     let s:jobs[job_id] = root
   elseif exists('g:loaded_fugitive')
     let l:head = fugitive#head()
-    let l:symbol = s:font ? " \ue0a0 " : ' Git:'
-    return empty(l:head) ? '' : l:symbol.l:head . ' '
+    return empty(l:head) ? '' : s:git_branch_symbol.l:head . ' '
   endif
 
   return ''
 endfunction
 
 function! s:out_cb(channel, message) abort
-  if a:message =~ "^* "
-    let l:job = ch_getjob(a:channel)
-    let l:job_id = matchstr(string(l:job), '\d\+')
+  if a:message =~# '^* '
+    let l:job_id = ch_info(a:channel)['id']
     if !has_key(s:jobs, l:job_id) | return | endif
-    let l:branch = substitute(a:message, '*', s:font ? "  \ue0a0" : '  Git:', '')
+    let l:branch = substitute(a:message, '*', s:git_branch_star_substituted, '')
     call s:SetGitBranch(s:cwd, l:branch.' ')
     call remove(s:jobs, l:job_id)
   endif
@@ -153,9 +153,9 @@ endfunction
 function! s:on_exit(job_id, data, _event) dict abort
   if !has_key(s:jobs, a:job_id) | return | endif
   if v:dying | return | endif
-  let l:cur_branch = join(filter(self.stdout, 'v:val =~ "*"'))
+  let l:cur_branch = join(filter(self.stdout, 'v:val =~# "*"'))
   if !empty(l:cur_branch)
-    let l:branch = substitute(l:cur_branch, '*', s:font ? "  \ue0a0" : ' Git:', '')
+    let l:branch = substitute(l:cur_branch, '*', s:git_branch_star_substituted, '')
     call s:SetGitBranch(self.cwd, l:branch.' ')
   else
     let err = join(self.stderr)
@@ -166,14 +166,13 @@ endfunction
 
 function! s:SetGitBranch(root, str) abort
   let buf_list = filter(range(1, bufnr('$')), 'bufexists(v:val)')
-  let root = a:root
+  let root = s:is_win ? substitute(a:root, '\', '/', 'g') : a:root
   for nr in buf_list
     let path = fnamemodify(bufname(nr), ':p')
-    if has('win32')
+    if s:is_win
       let path = substitute(path, '\', '/', 'g')
-      let root = substitute(root, '\', '/', 'g')
     endif
-    if match(path, a:root) >= 0
+    if match(path, root) >= 0
       call setbufvar(nr, 'eleline_branch', a:str)
     endif
   endfor
@@ -199,12 +198,12 @@ function! ElelineLCN() abort
 endfunction
 
 function! ElelineVista() abort
-  return !empty(get(b:, 'vista_nearest_method_or_function', '')) ? s:f_icon.b:vista_nearest_method_or_function : ''
+  return !empty(get(b:, 'vista_nearest_method_or_function', '')) ? s:fn_icon.b:vista_nearest_method_or_function : ''
 endfunction
 
 function! ElelineCoc() abort
   if s:is_tmp_file() | return '' | endif
-  if exists('g:coc_status') && get(g:, 'coc_enabled', 0) | return g:coc_status.' ' | endif
+  if get(g:, 'coc_enabled', 0) | return coc#status().' ' | endif
   return ''
 endfunction
 
@@ -285,10 +284,10 @@ if has('termguicolors') && &termguicolors
 endif
 
 function! s:hi(group, dark, light, ...) abort
-  let [fg, bg] = &bg ==# 'dark' ? a:dark : a:light
+  let [fg, bg] = &background ==# 'dark' ? a:dark : a:light
 
   if empty(bg)
-    if &bg ==# 'light'
+    if &background ==# 'light'
       let reverse = s:extract('StatusLine', 'reverse')
       let ctermbg = s:extract('StatusLine', reverse ? 'fg' : 'bg', 'cterm')
       let ctermbg = empty(ctermbg) ? 237 : ctermbg
@@ -314,23 +313,23 @@ function! s:hi_statusline() abort
   call s:hi('ElelineTotalBuf'   , [178 , s:bg+8] , [240 , ''] )
   call s:hi('ElelinePaste'      , [232 , 178]    , [232 , 178]    , 'bold')
   call s:hi('ElelineFsize'      , [250 , s:bg+6] , [235 , ''] )
-  call s:hi('ElelineCurFname'   , [100 , s:bg+4] ,  [100 , '']     , 'bold' )
+  call s:hi('ElelineCurFname'   , [100 , s:bg+4] , [100 , '']     , 'bold' )
   call s:hi('ElelineGitBranch'  , [184 , s:bg+2] , [89  , '']     , 'bold' )
   call s:hi('ElelineGitStatus'  , [208 , s:bg+2] , [89  , ''])
   call s:hi('ElelineError'      , [197 , s:bg+2] , [197 , ''])
   call s:hi('ElelineWarning'    , [214 , s:bg+2] , [214 , ''])
   call s:hi('ElelineVista'      , [149 , s:bg+2] , [149 , ''])
 
-  if &bg ==# 'dark'
+  if &background ==# 'dark'
     call s:hi('StatusLine' , [140 , s:bg+2], [140, ''] , 'none')
   endif
 
-  "call s:hi('Eleline7'      , [249 , s:bg+3], [237, ''] )
-  "call s:hi('Eleline8'      , [250 , s:bg+4], [238, ''] )
-  "call s:hi('Eleline9'      , [251 , s:bg+5], [239, ''] )
   call s:hi('Eleline7'      , [102 , s:bg+3], [237, ''] ) 
   call s:hi('Eleline8'      , [101 , s:bg+2], [238, ''] , 'bold')
   call s:hi('Eleline9'      , [100 , s:bg+1], [239, ''] , 'bold')
+  "call s:hi('Eleline7'      , [249 , s:bg+3], [237, ''] )
+  "call s:hi('Eleline8'      , [250 , s:bg+4], [238, ''] )
+  "call s:hi('Eleline9'      , [251 , s:bg+5], [239, ''] )
 endfunction
 
 function! s:InsertStatuslineColor(mode) abort
