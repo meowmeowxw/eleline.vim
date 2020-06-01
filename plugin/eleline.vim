@@ -32,7 +32,8 @@ return '  '.l:bufnr."  ".winnr().' '
 endfunction
 
 function! ElelineTotalBuf() abort
-  return '[TOT:'.len(filter(range(1, bufnr('$')), 'buflisted(v:val)')).']'
+  "return '[TOT:'.len(filter(range(1, bufnr('$')), 'buflisted(v:val)')).']'
+  return ''
 endfunction
 
 function! ElelinePaste() abort
