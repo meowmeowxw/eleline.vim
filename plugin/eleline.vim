@@ -370,12 +370,13 @@ endif
 function! SetCursorLineNrColorVisual()
     set updatetime=0
 	call s:hi('ElelineBufnrWinnr' , [51, 50], [101, 101])
+	return ''
 endfunction
 
 vnoremap <silent> <expr> <SID>SetCursorLineNrColorVisual SetCursorLineNrColorVisual()
-nnoremap <silent> <script> v v<SID>SetCursorLineNrColorVisual
-nnoremap <silent> <script> V V<SID>SetCursorLineNrColorVisual
-nnoremap <silent> <script> <C-v> <C-v><SID>SetCursorLineNrColorVisual
+nnoremap <silent> <script> v v <SID>SetCursorLineNrColorVisual<left>
+nnoremap <silent> <script> V V <SID>SetCursorLineNrColorVisual<left>
+nnoremap <silent> <script> <C-v> <C-v> <SID>SetCursorLineNrColorVisual<left>
 
 augroup eleline
   autocmd!
