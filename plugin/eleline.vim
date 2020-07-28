@@ -367,6 +367,16 @@ if exists('*timer_start')
 else
   call s:SetStatusLine()
 endif
+function! SetCursorLineNrColorVisual()
+    set updatetime=0
+    " Visual mode: orange
+    highlight CursorLineNr cterm=none ctermfg=9 guifg=#cb4b16
+endfunction
+
+vnoremap <silent> <expr> <SID>SetCursorLineNrColorVisual SetCursorLineNrColorVisual()
+nnoremap <silent> <script> v v<SID>SetCursorLineNrColorVisual
+nnoremap <silent> <script> V V<SID>SetCursorLineNrColorVisual
+nnoremap <silent> <script> <C-v> <C-v><SID>SetCursorLineNrColorVisual
 
 augroup eleline
   autocmd!
