@@ -1,6 +1,16 @@
 # eleline.vim
 
-![](./eleline.png)
+## Normal mode
+
+![](./normal.png)
+
+## Visual mode
+
+![](./visual.png)
+
+## Insert mode
+
+![](./insert.png)
 
 Another **ele**gant status**line** for vim, extracted from [space-vim](https://github.com/liuchengxu/space-vim).
 
