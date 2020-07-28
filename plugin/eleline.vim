@@ -22,13 +22,26 @@ let s:git_branch_symbol = s:font ? " \ue0a0 " : ' Git:'
 let s:git_branch_star_substituted = s:font ? "  \ue0a0" : '  Git:'
 let s:jobs = {}
 
+let g:currentmode={
+       \ 'n'  : '<N> ',
+       \ 'v'  : '<V> ',
+       \ 'V'  : '<Vl> ',
+       \ '' : '<Vb> ',
+       \ 'i'  : '<I> ',
+       \ 'R'  : '<R> ',
+       \ 'Rv' : '<Vr> ',
+       \ 'c'  : '<C> ',
+       \ 't'  : '<T> '
+       \}
+
 function! ElelineBufnrWinnr() abort
   let l:bufnr = bufnr('%')
+  let l:curmode = g:currentmode[mode()]
   if !s:gui
     " transform to circled num: nr2char(9311 + l:bufnr)
     let l:bufnr = l:bufnr > 20 ? l:bufnr : nr2char(9311 + l:bufnr).' '
   endif
-return '  '.l:bufnr."  ".winnr().' '
+return '  '.l:bufnr."  ".winnr().' '.l:curmode.''
 endfunction
 
 function! ElelineTotalBuf() abort
@@ -204,7 +217,7 @@ endfunction
 
 function! ElelineCoc() abort
   if s:is_tmp_file() | return '' | endif
-  if get(g:, 'coc_enabled', 0) | return coc#status().' ' | endif
+  if get(g:, 'coc_enabled', 0) | return ' ' | endif
   return ''
 endfunction
 
@@ -250,7 +263,7 @@ let s:colors = {
             \   208 : '#ff8700', 232 : '#333300', 197 : '#cc0033',
             \   214 : '#ffff66', 124 : '#af3a03', 172 : '#b57614',
             \   32  : '#3a81c3', 89  : '#6c3163', 50 : '#b234d8',
-			\   51 : '#f2edf4',
+			\   51 : '#f2edf4', 52 : '#73b8f4',
             \
             \   235 : '#262626', 236 : '#303030', 237 : '#3a3a3a',
             \   238 : '#444444', 239 : '#4e4e4e', 240 : '#585858',
@@ -327,8 +340,8 @@ function! s:hi_statusline() abort
   endif
 
   call s:hi('Eleline7'      , [102 , s:bg+3], [237, ''] ) 
-  call s:hi('Eleline8'      , [101 , s:bg+2], [238, ''] , 'bold')
-  call s:hi('Eleline9'      , [100 , s:bg+1], [239, ''] , 'bold')
+  call s:hi('Eleline8'      , [178 , 232], [89, ''] , 'bold')
+  call s:hi('Eleline9'      , [232, 178], [89, ''] , 'bold')
   "call s:hi('Eleline7'      , [249 , s:bg+3], [237, ''] )
   "call s:hi('Eleline8'      , [250 , s:bg+4], [238, ''] )
   "call s:hi('Eleline9'      , [251 , s:bg+5], [239, ''] )
@@ -337,9 +350,13 @@ endfunction
 function! s:InsertStatuslineColor(mode) abort
   if a:mode == 'i'
     "call s:hi('ElelineBufnrWinnr' , [251, 101] , [251, 101])
-    call s:hi('ElelineBufnrWinnr' , [100, s:bg+2] , [100, s:bg+2])
+    call s:hi('ElelineBufnrWinnr' , [s:bg+2, 100] , [s:bg+2, s:bg+2])
+	call s:hi('Eleline8'      , [100, s:bg+2], [s:bg+2, ''] , 'bold')
+    call s:hi('Eleline9' , [s:bg+2, 100] , [s:bg+2, s:bg+2])
   elseif a:mode == 'r'
-    call s:hi('ElelineBufnrWinnr' , [232, 160], [232, 160])
+    call s:hi('ElelineBufnrWinnr' , [s:bg+2, 100] , [s:bg+2, s:bg+2])
+	call s:hi('Eleline8'      , [100, s:bg+2], [s:bg+2, ''] , 'bold')
+    call s:hi('Eleline9' , [s:bg+2, 100] , [s:bg+2, s:bg+2])
     " no visual mode buffer so we need workaround
   else
     call s:hi('ElelineBufnrWinnr' , [232, 178], [89, ''])
@@ -369,7 +386,16 @@ endif
 
 function! SetCursorLineNrColorVisual()
     set updatetime=0
-	call s:hi('ElelineBufnrWinnr' , [51, 50], [101, 101])
+	call s:hi('ElelineBufnrWinnr' , [232, 52], [101, 101])
+	call s:hi('Eleline8'      , [52 , 232], [101, ''] , 'bold')
+	call s:hi('Eleline9'      , [232, 52], [89, ''] , 'bold')
+	return ''
+endfunction
+
+function! SetCursorLineColorNormal()
+	call s:hi('ElelineBufnrWinnr', [232, 178], [89, ''])
+	call s:hi('Eleline8'      , [178 , 232], [89, ''] , 'bold')
+	call s:hi('Eleline9'      , [232, 178], [89, ''] , 'bold')
 	return ''
 endfunction
 
@@ -382,7 +408,7 @@ augroup eleline
   autocmd!
   autocmd User GitGutter,Startified,LanguageClientStarted call s:SetStatusLine()
   " Change colors for insert mode
-  autocmd InsertLeave,CursorHold * call s:hi('ElelineBufnrWinnr', [232, 178], [89, ''])
+  autocmd InsertLeave,CursorHold * call SetCursorLineColorNormal()
   autocmd InsertEnter,InsertChange * call s:InsertStatuslineColor(v:insertmode)
   autocmd BufWinEnter,ShellCmdPost,BufWritePost * call s:SetStatusLine()
   autocmd FileChangedShellPost,ColorScheme * call s:SetStatusLine()
