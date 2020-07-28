@@ -374,9 +374,9 @@ function! SetCursorLineNrColorVisual()
 endfunction
 
 vnoremap <silent> <expr> <SID>SetCursorLineNrColorVisual SetCursorLineNrColorVisual()
-nnoremap <silent> <script> v v <SID>SetCursorLineNrColorVisual<left>
-nnoremap <silent> <script> V V <SID>SetCursorLineNrColorVisual<left>
-nnoremap <silent> <script> <C-v> <C-v> <SID>SetCursorLineNrColorVisual<left>
+nnoremap <silent> <script> v v<SID>SetCursorLineNrColorVisual<left><right>
+nnoremap <silent> <script> V V<SID>SetCursorLineNrColorVisual<left><right>
+nnoremap <silent> <script> <C-v> <C-v><SID>SetCursorLineNrColorVisual<left><right>
 
 augroup eleline
   autocmd!
