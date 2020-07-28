@@ -249,7 +249,8 @@ let s:colors = {
             \   171 : '#d75fd7', 178 : '#ffbb7d', 184 : '#ffe920',
             \   208 : '#ff8700', 232 : '#333300', 197 : '#cc0033',
             \   214 : '#ffff66', 124 : '#af3a03', 172 : '#b57614',
-            \   32  : '#3a81c3', 89  : '#6c3163',
+            \   32  : '#3a81c3', 89  : '#6c3163', 50 : '#b234d8',
+			\   51 : '#f2edf4',
             \
             \   235 : '#262626', 236 : '#303030', 237 : '#3a3a3a',
             \   238 : '#444444', 239 : '#4e4e4e', 240 : '#585858',
@@ -340,8 +341,6 @@ function! s:InsertStatuslineColor(mode) abort
   elseif a:mode == 'r'
     call s:hi('ElelineBufnrWinnr' , [232, 160], [232, 160])
     " no visual mode buffer so we need workaround
-    elseif a:mode == 'v'
-      call s:hi('ElelineBufnrWinnr' , [232, 100], [101, 101])
   else
     call s:hi('ElelineBufnrWinnr' , [232, 178], [89, ''])
   endif
@@ -367,10 +366,10 @@ if exists('*timer_start')
 else
   call s:SetStatusLine()
 endif
+
 function! SetCursorLineNrColorVisual()
     set updatetime=0
-    " Visual mode: orange
-    highlight CursorLineNr cterm=none ctermfg=9 guifg=#cb4b16
+	call s:hi('ElelineBufnrWinnr' , [51, 50], [101, 101])
 endfunction
 
 vnoremap <silent> <expr> <SID>SetCursorLineNrColorVisual SetCursorLineNrColorVisual()
@@ -382,7 +381,7 @@ augroup eleline
   autocmd!
   autocmd User GitGutter,Startified,LanguageClientStarted call s:SetStatusLine()
   " Change colors for insert mode
-  autocmd InsertLeave * call s:hi('ElelineBufnrWinnr', [232, 178], [89, ''])
+  autocmd InsertLeave,CursorHold * call s:hi('ElelineBufnrWinnr', [232, 178], [89, ''])
   autocmd InsertEnter,InsertChange * call s:InsertStatuslineColor(v:insertmode)
   autocmd BufWinEnter,ShellCmdPost,BufWritePost * call s:SetStatusLine()
   autocmd FileChangedShellPost,ColorScheme * call s:SetStatusLine()
