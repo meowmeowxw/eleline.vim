@@ -71,25 +71,30 @@ function! ElelineFsize(f) abort
 endfunction
 
 function! ElelineCurFname() abort
-  return &filetype ==# 'python' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'c.doxygen' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'c' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'cpp' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'go' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'html' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'javascript' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'markdown' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'php' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'vim' ? '  '.expand('%:p:t').'   ' : 
-              \ &filetype ==# 'rust' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'gitconfig' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'haskell' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'cs' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'ruby' ? '  '.expand('%:p:t').' ' :
-              \ &filetype ==# 'java' ? '  '.expand('%:p:t').'  ' :
-              \ &filetype ==# 'text' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'tex' ? '  '.expand('%:p:t').'  ' : 
-              \ &filetype ==# 'startify' ? '' : '  '.expand('%:p:t').' '
+	if exists('*WebDevIconsGetFileTypeSymbol')  " support for vim-devicons
+		let l:f = WebDevIconsGetFileTypeSymbol()
+		return '  '.expand('%:p:t').' '.l:f.' '
+	else
+		return &filetype ==# 'python' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'c.doxygen' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'c' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'cpp' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'go' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'html' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'javascript' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'markdown' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'php' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'vim' ? '  '.expand('%:p:t').'   ' : 
+					\ &filetype ==# 'rust' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'gitconfig' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'haskell' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'cs' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'ruby' ? '  '.expand('%:p:t').' ' :
+					\ &filetype ==# 'java' ? '  '.expand('%:p:t').'  ' :
+					\ &filetype ==# 'text' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'tex' ? '  '.expand('%:p:t').'  ' : 
+					\ &filetype ==# 'startify' ? '' : '  '.expand('%:p:t').' '
+	endif
 endfunction
 
 function! ElelineError() abort
@@ -249,21 +254,24 @@ function! s:StatusLine() abort
   let l:m_r_f = ''
   let l:pos = '%#Eleline8# '.(s:font?"\ue0a1":'').'%l/%L:%c%V |'
   let l:enc = ' %{&fenc != "" ? &fenc : &enc} | %{&bomb ? ",BOM " : ""}'
-  let l:ff = '%{&ff} %*'
+  let l:ff = '%{&ff} %{WebDevIconsGetFileFormatSymbol()} %*'
   let l:pct = '%#Eleline9# %P %*'
   return l:prefix.l:tot.'%<'.l:fsize.l:common
         \ .'%='.l:m_r_f.l:pos.l:enc.l:ff.l:pct
 endfunction
 
 let s:colors = {
-            \   98  : '#d6b42c', 99  : '#64c64b',
-            \   100 : '#ed6c65', 101 : '#d167db', 102 : '#d6bf2c',
+            \   98  : '#d6b42c', 
+			\   99  : '#64c64b',
+            \   100 : '#ed6c65', 
+			\   101 : '#d167db',
+			\   102 : '#d6bf2c',
             \   140 : '#af87d7', 149 : '#99cc66', 160 : '#d70000',
             \   171 : '#d75fd7', 178 : '#ffbb7d', 184 : '#ffe920',
             \   208 : '#ff8700', 232 : '#333300', 197 : '#cc0033',
             \   214 : '#ffff66', 124 : '#af3a03', 172 : '#b57614',
             \   32  : '#3a81c3', 89  : '#6c3163', 50 : '#b234d8',
-			\   51 : '#f2edf4', 52 : '#73b8f4',
+			\   51 : '#f2edf4', 52 : '#73b8f4', 53 : '#c678dd',
             \
             \   235 : '#262626', 236 : '#303030', 237 : '#3a3a3a',
             \   238 : '#444444', 239 : '#4e4e4e', 240 : '#585858',
@@ -328,7 +336,7 @@ function! s:hi_statusline() abort
   call s:hi('ElelineTotalBuf'   , [178 , s:bg+8] , [240 , ''] )
   call s:hi('ElelinePaste'      , [232 , 178]    , [232 , 178]    , 'bold')
   call s:hi('ElelineFsize'      , [250 , s:bg+6] , [235 , ''] )
-  call s:hi('ElelineCurFname'   , [100 , s:bg+4] , [100 , '']     , 'bold' )
+  call s:hi('ElelineCurFname'   , [101, s:bg+4] , [100 , '']     , 'bold' )
   call s:hi('ElelineGitBranch'  , [184 , s:bg+2] , [89  , '']     , 'bold' )
   call s:hi('ElelineGitStatus'  , [208 , s:bg+2] , [89  , ''])
   call s:hi('ElelineError'      , [197 , s:bg+2] , [197 , ''])
